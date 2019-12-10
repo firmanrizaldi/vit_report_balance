@@ -1,0 +1,63 @@
+<?xml version='1.0' encoding='utf-8'?>
+<odoo>
+    <data>
+        <!-- Add you code here -->
+        <record id="H" model="mrp.workcenter">
+			<field name="name">H</field>
+			<field name="code">H</field>
+		</record>
+        
+        <record id="R" model="mrp.workcenter">
+			<field name="name">R</field>
+			<field name="code">R</field>
+		</record>
+
+        <record id="W" model="mrp.workcenter">
+			<field name="name">W</field>
+			<field name="code">W</field>
+		</record>
+
+        <record id="F" model="mrp.workcenter">
+			<field name="name">F</field>
+			<field name="code">F</field>
+		</record>
+
+        <record id="PL-Zink" model="mrp.workcenter">
+			<field name="name">PL-Zink</field>
+			<field name="code">PL-Zink</field>
+		</record>
+        
+        <record id="PL-Bak" model="mrp.workcenter">
+			<field name="name">PL-Bak</field>
+			<field name="code">PL-Bak</field>
+		</record>
+
+        <record id="PL-Cr" model="mrp.workcenter">
+			<field name="name">PL-Cr</field>
+			<field name="code">PL-Cr</field>
+		</record>
+
+        <record id="FQ-MJ" model="mrp.workcenter">
+			<field name="name">FQ-MJ</field>
+			<field name="code">FQ-MJ</field>
+		</record>
+
+        <record id="FQ-CD" model="mrp.workcenter">
+			<field name="name">FQ-CD</field>
+			<field name="code">FQ-CD</field>
+		</record>
+
+        <record id="FQ-MS" model="mrp.workcenter">
+			<field name="name">FQ-MS</field>
+			<field name="code">FQ-MS</field>
+		</record>
+
+        <record id="PK" model="mrp.workcenter">
+			<field name="name">PK</field>
+			<field name="code">PK</field>
+		</record>
+
+
+
+    </data>
+</odoo>

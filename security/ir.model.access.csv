@@ -1,0 +1,5 @@
+"id","name","model_id:id","group_id:id","perm_read","perm_write","perm_create","perm_unlink"
+access_all_vit_report_balance,access_all_vit_report_balance,model_vit_report_balance,,1,0,0,0
+access_admin_vit_report_balance,access_admin_vit_report_balance,model_vit_report_balance,base.group_system,1,1,1,1
+access_all_vit_report_balance_so,access_all_vit_report_balance_so,model_vit_report_balance_so,,1,0,0,0
+access_admin_vit_report_balance_so,access_admin_vit_report_balance_so,model_vit_report_balance_so,base.group_system,1,1,1,1

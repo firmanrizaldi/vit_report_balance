@@ -1,0 +1,6 @@
+<odoo>
+	<data>
+		<menuitem id="vit_report_balance_top_menu" name="Report balance" sequence="20" web_icon="vit_report_balance,static/description/icon.png" />
+		<menuitem id="vit_report_balance_sub_menu" name="Report balance" sequence="40" parent="vit_report_balance_top_menu" web_icon="vit_report_balance,static/description/icon.png" />
+	</data>
+</odoo>
