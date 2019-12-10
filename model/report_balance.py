@@ -55,7 +55,7 @@ class report_balance(models.Model):
             ) as total_so_bln_ini,
             (  select sum(sq.quantity)
 	       from product_template pt
-		join product_product pp on pp.product_tmpl_id = pt.id 
+		    join product_product pp on pp.product_tmpl_id = pt.id 
 		    join stock_quant sq on sq.product_id = pp.id 
 		    join stock_location sl on sl.id = sq.location_id
 		    join product_category pc on pt.categ_id = pc.id where pc.name = 'Finish Good' and sl.name = 'Stock'
@@ -90,13 +90,14 @@ class report_balance(models.Model):
             product_template pt
             join product_product pp on pp.product_tmpl_id = pt.id 
             join stock_quant sq on sq.product_id = pp.id 
+            join res_company rs on rs.id = pt.company_id
             join stock_location sl on sl.id = sq.location_id
-            join product_category pc on pt.categ_id = pc.id where pc.name = 'Finish Good' and sl.name = 'Stock'
+            join product_category pc on pt.categ_id = pc.id where pc.name = 'Finish Good' and sl.name = 'Stock' and rs.id =%s
         """
 
         cr = self.env.cr
 
-        cr.execute(sql, (self.date_start, self.date_start, self.date_end ))
+        cr.execute(sql, (self.date_start, self.date_start, self.date_end, self.company_id.id))
         result = cr.fetchall()
 
         sql = "delete from vit_report_balance_so where report_id=%s"
