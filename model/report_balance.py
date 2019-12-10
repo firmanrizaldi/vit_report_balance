@@ -37,7 +37,6 @@ class report_balance(models.Model):
         sql = """select pp.id,
        pt.name,
        pt.default_code,
-       sq.quantity,
             (
                 select sum(product_uom_qty - qty_delivered)
                 from sale_order_line sol 
@@ -54,6 +53,13 @@ class report_balance(models.Model):
                 and so.date_order between %s and %s
                 and sol.product_id = pp.id
             ) as total_so_bln_ini,
+            (  select sum(sq.quantity)
+	       from product_template pt
+		join product_product pp on pp.product_tmpl_id = pt.id 
+		    join stock_quant sq on sq.product_id = pp.id 
+		    join stock_location sl on sl.id = sq.location_id
+		    join product_category pc on pt.categ_id = pc.id where pc.name = 'Finish Good' and sl.name = 'Stock'
+            ) as onhand,
           
             (
                 select sum(qty_producing) 
@@ -83,7 +89,7 @@ class report_balance(models.Model):
         from
             product_template pt
             join product_product pp on pp.product_tmpl_id = pt.id 
-            join stock_quant sq on sq.product_id = pt.id
+            join stock_quant sq on sq.product_id = pp.id 
             join stock_location sl on sl.id = sq.location_id
             join product_category pc on pt.categ_id = pc.id where pc.name = 'Finish Good' and sl.name = 'Stock'
         """
@@ -100,7 +106,7 @@ class report_balance(models.Model):
             line = self.env['vit.report_balance_so']
             
             # cara primitif
-            if res[3] == None :
+            if res[5] == None :
                 onhand = 0
             else:
                 onhand = float(res[3])
@@ -110,7 +116,7 @@ class report_balance(models.Model):
             else:
                 total_so_bln_lalu = float(res[4])
                 
-            if res[5] == None :
+            if res[3] == None :
                 total_so_bulan_ini = 0
             else:
                 total_so_bulan_ini = float(res[5])
@@ -144,19 +150,14 @@ class report_balance(models.Model):
                 
             balance = wip - total_so_bln_lalu - total_so_bulan_ini
             
-                
-            _logger.info("//////////////////////////////////////////////")
-            _logger.info(wip)
-            _logger.info(balance)
-            _logger.info("/////////////////////////////////////////////")
             
 
             line.create({
                 'report_id': self.id,
                 'product_id': res[0],
-                'total_so_bln_lalu': res[4],
-                'total_so_bulan_ini': res[5],
-                'onhand': res[3],
+                'total_so_bln_lalu': res[3],
+                'total_so_bulan_ini': res[4],
+                'onhand': res[5],
                 'heading': res[6],
                 'rolling': res[7],
                 'furnace': res[8],
