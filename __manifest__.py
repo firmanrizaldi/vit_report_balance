@@ -19,8 +19,7 @@ vit_report_balanced
 		"view/menu.xml",
 		"view/report_balance.xml",
 		"data/work_order.xml",
-		
-		
+		"data/report_balance.xml",
 	],
 	"installable": True,
 	"auto_install": False,

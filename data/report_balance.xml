@@ -1,0 +1,18 @@
+<?xml version='1.0' encoding='utf-8'?>
+<odoo>
+    <data>
+        <!-- Add you code here -->
+        <record id="vit_report_balance_so" model="vit.report_balance">
+			<field name="name">Report Balance SO</field>
+			<field name="company_id">1</field>
+			<field name="name_report">Report Balance SO</field>
+		</record>
+
+        <record id="vit_report_balance_wip" model="vit.report_balance">
+			<field name="name">Report Balance WIP</field>
+			<field name="company_id">1</field>
+			<field name="name_report">Report Balance WIP</field>
+		</record>
+
+    </data>
+</odoo>

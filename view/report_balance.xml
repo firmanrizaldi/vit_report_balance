@@ -9,9 +9,10 @@
             <field name="priority" eval="8"/>
             <field name="arch" type="xml">
                 <tree string="Report balance">
+                    <field name="name_report" />
+                    <field name="name" />
                     <field name="date_start" />
                     <field name="date_end" />
-                    <field name="name" />
                 </tree>
             </field>
         </record>
@@ -24,7 +25,7 @@
             <field name="arch" type="xml">
                 <form string="Report balance">
                     <header>
-                        <button string="Generete Report" name="generate_report" type="object" class="btn-success" />
+                        <button string="Generete Report" name="generate_master" type="object" class="btn-success" />
                         <button string="Export Excel" name="export_excel" type="object"  class="btn-primary" />
                     </header>
                     <sheet>
@@ -43,28 +44,45 @@
                                 <field name="date_start" />
                                 <field name="date_end" />
                                 <field name="company_id" />
+                                <field name="name_report" />             
                             </group>
                             <group>
                             </group>
                         </group>
                         <notebook>
-                            <page string="Report Balance">
+                            <page string="Report Balance SO" attrs="{'invisible': [('name_report', '!=', 'Report Balance SO')]}" >
                                 <field name="report_ids">
                                     <!-- fungsi editable agar bisa diedit langsung di tree (formnya ga akan kebaca) -->
-                                    <tree string="Report balance so">
+                                    <tree string="Report balance SO">
                                         <field name="product_code" />
-                                        <field name="report_id" />
+                                        <field name="report_id" invisible="1"/>
                                         <field name="product_id" />
                                         <field name="total_so_bln_lalu" />
                                         <field name="total_so_bulan_ini" />
                                         <field name="onhand" />
-                                        <field name="heading" />
+                                        <field name="heading"/>
                                         <field name="rolling" />
                                         <field name="furnace" />
                                         <field name="plating" />
                                         <field name="fq" />
                                         <field name="wip_on_hand" />
                                         <field name="balance_so" />
+                                    </tree>
+                                </field>
+                            </page>
+                        
+                            <page string="Report Balance WIP"  attrs="{'invisible': [('name_report', '!=', 'Report Balance WIP')]}">
+                                <field name="report_wip_ids">
+                                    <!-- fungsi editable agar bisa diedit langsung di tree (formnya ga akan kebaca) -->
+                                    <tree string="Report balance WIP">
+                                        <field name="product_code" />
+                                        <field name="product_id" />
+                                        <field name="onhand" />
+                                        <field name="heading" />
+                                        <field name="rolling" />
+                                        <field name="furnace" />
+                                        <field name="plating" />
+                                        <field name="fq" />
                                     </tree>
                                 </field>
                             </page>
@@ -97,23 +115,22 @@
             <field name="model">vit.report_balance</field>
             <field name="arch" type="xml">
                 <kanban version="7.0">
-                    <field name="id" />
-                    <field name="date_start" />
-                    <field name="date_end" />
-                    <field name="name" />
                     <templates>
                         <t t-name="kanban-box">
                             <div class="oe_kanban_global_click o_kanban_record_has_image_fill">
                                 <div class="oe_kanban_details">
                                     <h4>
-                                        <a type="open"><field name="name"/></a>
+                                        <a type="open"><field name="name_report"/></a>
                                     </h4>
                                     <ul>
                                         <li>
-                                            Field1: <field name="name"></field>
+                                            Name = <field name="name" />
                                         </li>
                                         <li>
-                                            Field2: <field name="name"></field>
+                                            Date  = <field name="date_start" /> - <field name="date_end" />
+                                        </li>
+                                        <li>
+                                            Company = <field name="company_id" />
                                         </li>
                                     </ul>
                                 </div>
@@ -148,7 +165,7 @@
             <field name="type">ir.actions.act_window</field>
             <field name="res_model">vit.report_balance</field>
             <field name="view_type">form</field>
-            <field name="view_mode">kanban,tree,form,calendar</field>
+            <field name="view_mode">kanban,tree,form,calendar,graph</field>
             <field name="context">{"search_default_fieldname":1}</field>
             <field name="help" type="html">
                 <p class="oe_view_nocontent_create">
