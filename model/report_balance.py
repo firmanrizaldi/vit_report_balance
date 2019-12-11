@@ -3,8 +3,14 @@
 from odoo import api, fields, models
 import time
 import datetime
+from io import BytesIO
+import xlsxwriter
+import base64
+from datetime import datetime
+from odoo.exceptions import Warning
 import logging
 _logger = logging.getLogger(__name__)
+
 
 
 class report_balance(models.Model):
@@ -36,7 +42,7 @@ class report_balance(models.Model):
     required=True
     )
     
-    report_ids = fields.One2many(
+    report_so_ids = fields.One2many(
         string='report',
         comodel_name='vit.report_balance_so',
         inverse_name='report_id'
@@ -264,3 +270,207 @@ class report_balance(models.Model):
                
             })
     
+    # ///////////////// export excel/////////////////
+    data = fields.Binary('File')
+    
+    @api.multi
+    def export_excel(self):
+        if self.name_report == 'Report Balance SO' :
+            return self.export_excel_so()
+        else:
+            return self.export_excel_wip()
+        
+    def cell_format(self, workbook):
+        cell_format = {}
+        cell_format['title'] = workbook.add_format({
+            'bold': True,
+            'align': 'center',
+            'valign': 'vcenter',
+            'font_size': 20,
+            'font_name': 'Arial',
+        })
+        cell_format['header'] = workbook.add_format({
+            'bold': True,
+            'align': 'center',
+            'border': True,
+            'font_name': 'Arial',
+        })
+        cell_format['content'] = workbook.add_format({
+            'font_size': 11,
+            'border': False,
+            'font_name': 'Arial',
+        })
+        cell_format['content_float'] = workbook.add_format({
+            'font_size': 11,
+            'border': True,
+            'num_format': '#,##0.00',
+            'font_name': 'Arial',
+        })
+        cell_format['total'] = workbook.add_format({
+            'bold': True,
+            'num_format': '#,##0.00',
+            'border': True,
+            'font_name': 'Arial',
+        })
+        return cell_format, workbook
+    
+    @api.multi
+    def export_excel_so(self):
+        headers = [
+            "No",
+            "Product",
+            "Code",
+            "Total SO Bln. Lalu",
+            "Total SO Bln. Ini",
+            "On Hand",
+            "Heading",
+            "Rolling",
+            "Furnace",
+            "Plating",
+            "FQ",
+            "WIP + On Hand",
+            "Balance SO"
+        ]
+
+        fp = BytesIO()
+        workbook = xlsxwriter.Workbook(fp)
+        cell_format, workbook = self.cell_format(workbook)
+
+        if not self.report_so_ids :
+            raise Warning("Data tidak ditemukan. Mohon Generate Report terlebih dahulu")
+
+        worksheet = workbook.add_worksheet()
+        worksheet.set_column('A:ZZ', 30)
+        column_length = len(headers)
+
+        ########## parameters
+        worksheet.write(0, 4, "REPORT BALANCE SO", cell_format['title'])
+        worksheet.write(1, 0, "Tanggal", cell_format['content'])
+        worksheet.write(1, 1, self.date_start.strftime("%d-%b-%Y") + ' sampai ' + self.date_end.strftime("%d-%b-%Y"), cell_format['content'])
+        worksheet.write(2, 0, "Company", cell_format['content'])
+        worksheet.write(2, 1, self.company_id.name , cell_format['content'])
+
+        ########### header
+        column = 0
+        row = 4
+        for col in headers:
+            worksheet.write(row, column, col, cell_format['header'])
+            column += 1
+
+        ########### contents
+        row = 5
+        final_data=[]
+        no=1
+        for data in self.report_so_ids :
+            final_data.append([
+                no,
+                data.product_id.name,
+                data.product_code,
+                data.total_so_bln_lalu,
+                data.total_so_bulan_ini,
+                data.onhand,
+                data.heading,
+                data.rolling,
+                data.furnace,
+                data.plating,
+                data.fq,
+                data.wip_on_hand,
+                data.balance_so,
+            ])
+            no += 1
+
+        for data in final_data:
+            column = 0
+            for col in data:
+                worksheet.write(row, column, col, cell_format['content'] if column<2 else  cell_format['content_float'])
+                column += 1
+            row += 1
+
+        workbook.close()
+        result = base64.encodestring(fp.getvalue())
+        filename = self.name_report + '-' + self.company_id.name + '%2Exlsx'
+        self.write({'data':result})
+        url = "web/content/?model="+self._name+"&id="+str(self.id)+"&field=data&download=true&filename="+filename
+        return {
+            'type': 'ir.actions.act_url',
+            'url': url,
+            'target': 'new',
+        }
+
+    @api.multi
+    def export_excel_wip(self):
+
+        headers = [
+            "No",
+            "Product",
+            "Code",
+            "On Hand",
+            "Heading",
+            "Rolling",
+            "Furnace",
+            "Plating",
+            "FQ",
+            "WIP + On Hand",
+        ]
+
+        fp = BytesIO()
+        workbook = xlsxwriter.Workbook(fp)
+        cell_format, workbook = self.cell_format(workbook)
+
+        if not self.report_wip_ids :
+            raise Warning("Data tidak ditemukan. Mohon Generate Report terlebih dahulu")
+
+        worksheet = workbook.add_worksheet()
+        worksheet.set_column('A:ZZ', 30)
+        column_length = len(headers)
+
+        ########## parameters
+        worksheet.write(0, 4, "REPORT BALANCE WIP", cell_format['title'])
+        worksheet.write(1, 0, "Tanggal", cell_format['content'])
+        worksheet.write(1, 1, self.date_start.strftime("%d-%b-%Y") + ' sampai ' + self.date_end.strftime("%d-%b-%Y"), cell_format['content'])
+        worksheet.write(2, 0, "Company", cell_format['content'])
+        worksheet.write(2, 1, self.company_id.name , cell_format['content'])
+
+        ########### header
+        column = 0
+        row = 4
+        for col in headers:
+            worksheet.write(row, column, col, cell_format['header'])
+            column += 1
+
+        ########### contents
+        row = 5
+        final_data=[]
+        no=1
+        for data in self.report_wip_ids :
+            final_data.append([
+                no,
+                data.product_id.name,
+                data.product_code,
+                data.onhand,
+                data.heading,
+                data.rolling,
+                data.furnace,
+                data.plating,
+                data.fq,
+                data.wip_on_hand,
+            ])
+            no += 1
+
+        for data in final_data:
+            column = 0
+            for col in data:
+                worksheet.write(row, column, col, cell_format['content'] if column<2 else  cell_format['content_float'])
+                column += 1
+            row += 1
+
+        workbook.close()
+        result = base64.encodestring(fp.getvalue())
+        filename = self.name_report + '-' + self.company_id.name + '%2Exlsx'
+        self.write({'data':result})
+        url = "web/content/?model="+self._name+"&id="+str(self.id)+"&field=data&download=true&filename="+filename
+        return {
+            'type': 'ir.actions.act_url',
+            'url': url,
+            'target': 'new',
+        }
