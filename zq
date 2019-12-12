@@ -1,0 +1,29 @@
+[33mcommit 19f334e744ed9c1fd12895a52e66e4b025cb1f9f[m[33m ([m[1;36mHEAD -> [m[1;32mmaster[m[33m)[m
+Author: Firman Rizaldi Yusup <firmanrizaldiyusup@gmail.com>
+Date:   Wed Dec 11 20:19:47 2019 +0700
+
+    add export excel
+
+[33mcommit dc04434bb898959a3251ab0d153f70d027cd930a[m[33m ([m[1;31morigin/master[m[33m)[m
+Author: Firman Rizaldi Yusup <firmanrizaldiyusup@gmail.com>
+Date:   Wed Dec 11 14:35:41 2019 +0700
+
+    menyempurnakan
+
+[33mcommit 0e2233bfda746100421d0b91524f3a731343ac08[m
+Author: Firman Rizaldi Yusup <firmanrizaldiyusup@gmail.com>
+Date:   Tue Dec 10 15:03:20 2019 +0700
+
+    where res_company
+
+[33mcommit 9d287e051e1b2121169960b8053b5892392ecea6[m
+Author: Firman Rizaldi Yusup <firmanrizaldiyusup@gmail.com>
+Date:   Tue Dec 10 14:14:23 2019 +0700
+
+    merubah qty menjadi sum
+
+[33mcommit 1c00d0b2d6a91a9cb0ed972568a69704cb5fa3df[m
+Author: Firman Rizaldi Yusup <firmanrizaldiyusup@gmail.com>
+Date:   Tue Dec 10 11:01:27 2019 +0700
+
+    source code primitif

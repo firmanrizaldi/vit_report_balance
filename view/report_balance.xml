@@ -8,7 +8,7 @@
             <field name="type">tree</field>
             <field name="priority" eval="8"/>
             <field name="arch" type="xml">
-                <tree string="Report balance">
+                <tree string="Report balance" create="false">
                     <field name="name_report" />
                     <field name="name" />
                     <field name="date_start" />
@@ -23,10 +23,10 @@
             <field name="type">form</field>
             <field name="priority" eval="8"/>
             <field name="arch" type="xml">
-                <form string="Report balance">
+                <form string="Report balance" create="false">
                     <header>
-                        <button string="Generete Report" name="generate_master" type="object" class="btn-success" />
-                        <button string="Export Excel" name="export_excel" type="object"  class="btn-primary" />
+                        <button string="Generete Report" name="generate_master" type="object" class="btn-success" icon="fa-check-circle"/>
+                        <button string="Export Excel" name="export_excel" type="object"  class="btn-primary" icon="fa-table"/>
                     </header>
                     <sheet>
                         <div class="oe_button_box" name="button_box">
@@ -114,7 +114,7 @@
             <field name="name">vit_report_balance</field>
             <field name="model">vit.report_balance</field>
             <field name="arch" type="xml">
-                <kanban version="7.0">
+                <kanban version="7.0" create="false">
                     <templates>
                         <t t-name="kanban-box">
                             <div class="oe_kanban_global_click o_kanban_record_has_image_fill">

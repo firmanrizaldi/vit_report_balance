@@ -23,8 +23,39 @@ class report_balance(models.Model):
     )
     
     date_end = fields.Date( string="Date end",  help="",
-                                required=True, default=lambda self: time.strftime("%Y-%m-%d"), 
-    )
+                                required=True, 
+                                default=lambda self: time.strftime("%Y-%m-%d"),  )
+                                   
+    # @api.depends('date_start','date_end')
+    # def _compute_date(self):
+        
+    #     for record in self:
+    #         if str(record.date_end) <= str(record.date_start):
+    #             raise Warning("awas ular")
+            
+    
+    @api.model
+    def create(self, values):
+        result = super(report_balance, self).create(values)
+        
+        if str(self.date_end) < str(self.date_start):
+                raise Warning("Date End tidak boleh lebik kecil dari Date Start")
+        return result
+    
+    
+    @api.multi
+    def write(self, values):
+        result = super(report_balance, self).write(values)
+        
+        if str(self.date_end) < str(self.date_start):
+                raise Warning("Date End tidak boleh lebik kecil dari Date Start")
+        return result
+    
+                                  
+                                   
+                                   
+                                
+                                
     name = fields.Char( required=True, string="Name",  help="",
     )
     
@@ -54,7 +85,7 @@ class report_balance(models.Model):
         inverse_name='report_id'
     )
     
-    sql = """select 
+    sql = """ select 
             pp.id as product_id,
             pt.name,
             pt.default_code,
@@ -78,40 +109,46 @@ class report_balance(models.Model):
                 select sum(quantity)
                 from stock_quant sq 
                 join stock_location loc on sq.location_id = loc.id
+                join stock_move_line sml on sml.product_id = pp.id
                 where 
                 sq.product_id = pp.id
-                and loc.usage='internal'
+                and loc.usage='internal' and sml.date between %s and %s
             ) as onhand,
             (
                 select sum(qty_producing) 
                 from mrp_workorder wo
-                where wo.state = 'progress' and wo.product_id = pp.id and wo.name like 'H%%'
+                join mrp_workcenter_productivity mwp on mwp.workorder_id = wo.id
+                where wo.state = 'progress' and wo.product_id = pp.id and wo.name like 'H%%' and mwp.date_start between %s and %s
             ) as heading,
             (
                 select sum(qty_producing) 
                 from mrp_workorder wo
-                where wo.state = 'progress' and wo.product_id = pp.id and wo.name like 'R%%'
+                join mrp_workcenter_productivity mwp on mwp.workorder_id = wo.id
+                where wo.state = 'progress' and wo.product_id = pp.id and wo.name like 'H%%' and mwp.date_start between %s and %s
             ) as rolling, 
             (
                 select sum(qty_producing) 
                 from mrp_workorder wo
-                where wo.state = 'progress' and wo.product_id = pp.id and wo.name = 'F'
+                join mrp_workcenter_productivity mwp on mwp.workorder_id = wo.id
+                where wo.state = 'progress' and wo.product_id = pp.id and wo.name like 'H%%' and mwp.date_start between %s and %s
             ) as furnace, 
             (
                 select sum(qty_producing) 
                 from mrp_workorder wo
-                where wo.state = 'progress' and wo.product_id = pp.id and wo.name like 'P%%'
+                join mrp_workcenter_productivity mwp on mwp.workorder_id = wo.id
+                where wo.state = 'progress' and wo.product_id = pp.id and wo.name like 'H%%' and mwp.date_start between %s and %s
             ) as plating, 
             (
                 select sum(qty_producing) 
                 from mrp_workorder wo
-                where wo.state = 'progress' and wo.product_id = pp.id and wo.name like 'FQ%%'
+                join mrp_workcenter_productivity mwp on mwp.workorder_id = wo.id
+                where wo.state = 'progress' and wo.product_id = pp.id and wo.name like 'H%%' and mwp.date_start between %s and %s
             ) as fq
         from
             product_template pt
             join product_product pp on pp.product_tmpl_id = pt.id 
             join res_company rs on rs.id = pt.company_id
-            join product_category pc on pt.categ_id = pc.id where pc.name = 'Finish Good' and rs.id = %s
+            join product_category pc on pt.categ_id = pc.id where pc.name = 'Finish Good' and rs.id = %s 
         """
     
     # //////////////////////////////////////////////////////// GENERATE MASTER //////////////////////////////////////////////////////////////////
@@ -133,7 +170,15 @@ class report_balance(models.Model):
 
         cr = self.env.cr
 
-        cr.execute(self.sql, (self.date_start, self.date_start, self.date_end, self.company_id.id))
+        cr.execute(self.sql, (self.date_start, 
+                              self.date_start, self.date_end, 
+                              self.date_start, self.date_end, 
+                              self.date_start, self.date_end, 
+                              self.date_start, self.date_end, 
+                              self.date_start, self.date_end, 
+                              self.date_start, self.date_end, 
+                              self.date_start, self.date_end, 
+                              self.company_id.id))
         result = cr.dictfetchall()
 
         sql = "delete from vit_report_balance_so where report_id=%s"
@@ -232,7 +277,15 @@ class report_balance(models.Model):
 
         cr = self.env.cr
 
-        cr.execute(self.sql, (self.date_start, self.date_start, self.date_end, self.company_id.id))
+        cr.execute(self.sql, (self.date_start, 
+                              self.date_start, self.date_end, 
+                              self.date_start, self.date_end, 
+                              self.date_start, self.date_end, 
+                              self.date_start, self.date_end, 
+                              self.date_start, self.date_end, 
+                              self.date_start, self.date_end, 
+                              self.date_start, self.date_end, 
+                              self.company_id.id))
         result = cr.dictfetchall()
 
         _logger.info("/////////////////////////////////////////////////////////////////////////////////////")
