@@ -34,13 +34,13 @@ class report_balance(models.Model):
     #             raise Warning("awas ular")
             
     
-    @api.model
-    def create(self, values):
-        result = super(report_balance, self).create(values)
+    # @api.model
+    # def create(self, values):
+    #     result = super(report_balance, self).create(values)
         
-        if str(self.date_end) < str(self.date_start):
-                raise Warning("Date End tidak boleh lebik kecil dari Date Start")
-        return result
+    #     if str(self.date_end) < str(self.date_start):
+    #             raise Warning("Date End tidak boleh lebik kecil dari Date Start")
+    #     return result
     
     
     @api.multi
