@@ -13,7 +13,7 @@ class report_balance_so(models.Model):
     )
     
     
-    total_so_bln_lalu = fields.Float( string="Total SO bln lalu",  help="")
+    total_so_bln_lalu = fields.Float( string="Total SO bulan lalu",  help="")
     total_so_bulan_ini = fields.Float( string="Total SO bulan ini",  help="")
     onhand = fields.Float( string="On hand",  help="")
     heading = fields.Float( string="Heading",  help="")

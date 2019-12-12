@@ -25,7 +25,7 @@ class report_balance(models.Model):
     date_end = fields.Date( string="Date end",  help="",
                                 required=True, 
                                 default=lambda self: time.strftime("%Y-%m-%d"),  )
-                                   
+
     # @api.depends('date_start','date_end')
     # def _compute_date(self):
         
@@ -51,11 +51,7 @@ class report_balance(models.Model):
                 raise Warning("Date End tidak boleh lebik kecil dari Date Start")
         return result
     
-                                  
-                                   
-                                   
-                                
-                                
+                        
     name = fields.Char( required=True, string="Name",  help="",
     )
     
@@ -106,43 +102,39 @@ class report_balance(models.Model):
                 and sol.product_id = pp.id
             ) as total_so_bln_ini,
             (  
-                select sum(quantity)
-                from stock_quant sq 
-                join stock_location loc on sq.location_id = loc.id
-                join stock_move_line sml on sml.product_id = pp.id
-                where 
-                sq.product_id = pp.id
-                and loc.usage='internal' and sml.date between %s and %s
+                select sum(qty_done)
+                from stock_move_line sml 
+                where sml.date <= %s and sml.date >= %sand sml.product_id  = pp.id
             ) as onhand,
             (
                 select sum(qty_producing) 
                 from mrp_workorder wo
                 join mrp_workcenter_productivity mwp on mwp.workorder_id = wo.id
-                where wo.state = 'progress' and wo.product_id = pp.id and wo.name like 'H%%' and mwp.date_start between %s and %s
+                where wo.state = 'progress' and wo.product_id = pp.id and wo.code like 'H%%' and mwp.date_start between %s and %s
             ) as heading,
             (
                 select sum(qty_producing) 
                 from mrp_workorder wo
                 join mrp_workcenter_productivity mwp on mwp.workorder_id = wo.id
-                where wo.state = 'progress' and wo.product_id = pp.id and wo.name like 'H%%' and mwp.date_start between %s and %s
+                where wo.state = 'progress' and wo.product_id = pp.id and wo.code like 'R%%' and mwp.date_start between %s and %s
             ) as rolling, 
             (
                 select sum(qty_producing) 
                 from mrp_workorder wo
                 join mrp_workcenter_productivity mwp on mwp.workorder_id = wo.id
-                where wo.state = 'progress' and wo.product_id = pp.id and wo.name like 'H%%' and mwp.date_start between %s and %s
+                where wo.state = 'progress' and wo.product_id = pp.id and wo.code = 'F' and mwp.date_start between %s and %s
             ) as furnace, 
             (
                 select sum(qty_producing) 
                 from mrp_workorder wo
                 join mrp_workcenter_productivity mwp on mwp.workorder_id = wo.id
-                where wo.state = 'progress' and wo.product_id = pp.id and wo.name like 'H%%' and mwp.date_start between %s and %s
+                where wo.state = 'progress' and wo.product_id = pp.id and wo.code like 'PL%%' and mwp.date_start between %s and %s
             ) as plating, 
             (
                 select sum(qty_producing) 
                 from mrp_workorder wo
                 join mrp_workcenter_productivity mwp on mwp.workorder_id = wo.id
-                where wo.state = 'progress' and wo.product_id = pp.id and wo.name like 'H%%' and mwp.date_start between %s and %s
+                where wo.state = 'progress' and wo.product_id = pp.id and wo.code like 'FQ%%' and mwp.date_start between %s and %s
             ) as fq
         from
             product_template pt
@@ -170,15 +162,15 @@ class report_balance(models.Model):
 
         cr = self.env.cr
 
-        cr.execute(self.sql, (self.date_start, 
-                              self.date_start, self.date_end, 
-                              self.date_start, self.date_end, 
-                              self.date_start, self.date_end, 
-                              self.date_start, self.date_end, 
-                              self.date_start, self.date_end, 
-                              self.date_start, self.date_end, 
-                              self.date_start, self.date_end, 
-                              self.company_id.id))
+        cr.execute(self.sql, (self.date_start,                  # total_so_bln_ini,
+                              self.date_start, self.date_end, # total_so_bln_ini,
+                              self.date_start, self.date_end, # onhand,
+                              self.date_start, self.date_end, #heading
+                              self.date_start, self.date_end, #rolling
+                              self.date_start, self.date_end, #furnace
+                              self.date_start, self.date_end, #plating
+                              self.date_start, self.date_end, #fq
+                              self.company_id.id)) # rs.id = %s 
         result = cr.dictfetchall()
 
         sql = "delete from vit_report_balance_so where report_id=%s"
