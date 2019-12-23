@@ -104,37 +104,42 @@ class report_balance(models.Model):
             (  
                 select sum(qty_done)
                 from stock_move_line sml 
-                where sml.date <= %s and sml.date >= %sand sml.product_id  = pp.id
+                where sml.date <= %s and sml.date >= %s and sml.product_id  = pp.id
             ) as onhand,
             (
                 select sum(qty_producing) 
                 from mrp_workorder wo
+                join mrp_workcenter mw on mw.id = wo.workcenter_id
                 join mrp_workcenter_productivity mwp on mwp.workorder_id = wo.id
-                where wo.state = 'progress' and wo.product_id = pp.id and wo.code like 'H%%' and mwp.date_start between %s and %s
+                where wo.state = 'progress' and wo.product_id = pp.id and mw.code like 'H%%' and mwp.date_start between %s and %s
             ) as heading,
             (
                 select sum(qty_producing) 
                 from mrp_workorder wo
+                join mrp_workcenter mw on mw.id = wo.workcenter_id
                 join mrp_workcenter_productivity mwp on mwp.workorder_id = wo.id
-                where wo.state = 'progress' and wo.product_id = pp.id and wo.code like 'R%%' and mwp.date_start between %s and %s
+                where wo.state = 'progress' and wo.product_id = pp.id and mw.code like 'R%%' and mwp.date_start between %s and %s
             ) as rolling, 
             (
                 select sum(qty_producing) 
                 from mrp_workorder wo
+                join mrp_workcenter mw on mw.id = wo.workcenter_id
                 join mrp_workcenter_productivity mwp on mwp.workorder_id = wo.id
-                where wo.state = 'progress' and wo.product_id = pp.id and wo.code = 'F' and mwp.date_start between %s and %s
+                where wo.state = 'progress' and wo.product_id = pp.id and mw.code = 'F' and mwp.date_start between %s and %s
             ) as furnace, 
             (
                 select sum(qty_producing) 
                 from mrp_workorder wo
+                join mrp_workcenter mw on mw.id = wo.workcenter_id
                 join mrp_workcenter_productivity mwp on mwp.workorder_id = wo.id
-                where wo.state = 'progress' and wo.product_id = pp.id and wo.code like 'PL%%' and mwp.date_start between %s and %s
+                where wo.state = 'progress' and wo.product_id = pp.id and mw.code like 'PL%%' and mwp.date_start between %s and %s
             ) as plating, 
             (
                 select sum(qty_producing) 
                 from mrp_workorder wo
+                join mrp_workcenter mw on mw.id = wo.workcenter_id
                 join mrp_workcenter_productivity mwp on mwp.workorder_id = wo.id
-                where wo.state = 'progress' and wo.product_id = pp.id and wo.code like 'FQ%%' and mwp.date_start between %s and %s
+                where wo.state = 'progress' and wo.product_id = pp.id and mw.code like 'FQ%%' and mwp.date_start between %s and %s
             ) as fq
         from
             product_template pt
